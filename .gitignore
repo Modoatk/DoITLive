@@ -1,5 +1,8 @@
 *.py[co]
 
+#App Specific
+token_store.txt
+
 # Packages
 *.egg
 *.egg-info
