@@ -2,13 +2,19 @@ import os
 import locale
 from dropbox import client, rest, session
 
+class DropboxException(Exception):
+    pass
+
+class FileNotFoundException(Exception):
+    pass
+
 class DropboxAdapter:
     """Define file operation functions"""
+        #Access type can be either 'dropbox' or 'app_folder'
     def __init__(self, app_key, app_secret, access_type = 'app_folder'):
-        #comment
+        #Initialize dropbox api client
         self.sess = StoredSession(app_key, app_secret, access_type)
         self.api_client = client.DropboxClient(self.sess)
-        #Set Access type (either 'dropbox' or 'app_folder')
 
     def login(self):
         """log in to a Dropbox account"""
@@ -23,6 +29,12 @@ class DropboxAdapter:
         self.sess.unlink()
 
     def list_directory_contents(self, path):
+        """
+        @param path: The relative path of directory to get contents of
+        @type path: String
+        @return: Contents of directory
+        @rtype: List
+        """
         resp = self.api_client.metadata(path)
         x = []
     
@@ -34,23 +46,63 @@ class DropboxAdapter:
         return x
 
     def make_directory(self, path):
+        """
+        @param path: The relative path of directory to be file_create_folder
+        @type path: String
+        """
         self.api_client.file_create_folder(path)
 
     def remove(self, path):
+        """
+        @param path: The relative path of item to be removed
+        @type path: String
+        """
         self.api_client.file_delete(path)
 
     def move(self, start, end):
+        """
+        @param start: The relative path of item's current location
+        @type start: String
+        @param end: The relative path to move item to
+        @type end: String
+        """
         self.api_client.file_move(start,end)
 
     def get_metadata(self, path):
+        """
+        @param path: The relative path of file to retrieve metadata from
+        @type path: String
+        @return: The metadata of provided file
+        @rtype: Dict
+        """
         x = self.api_client.metadata(path)
         return x
     
     def read_file(self, path):
-        x = self.api_client.get_file(path).read()
-        return x
+        """
+        @param path: The relative path of file to retrieve contents of
+        @type path: String
+        @return: The contents of provided file
+        @rtype: String
+        """
+        try:
+            x = self.api_client.get_file(path).read()
+            return x
+        except rest.ErrorResponse as e:
+            if e.status == 404:
+                raise FileNotFoundException(str(e))
+            else
+                raise DropboxException(str(e))
 
     def save_file(self, path, data, overwrite=True):
+        """
+        @param path: The relative path of file to be saved
+        @type path: String
+        @param data: The contents of file being saved
+        @type data: ????
+        @param overwrite: Whether to overwrite an existing file
+        @type overwrite: Boolean
+        """
         self.api_client.put_file(path, data, overwrite)
         
 class StoredSession(session.DropboxSession):
@@ -67,14 +119,20 @@ class StoredSession(session.DropboxSession):
             return False
 
     def write_creds(self, token):
+        """
+        @param token: App's authentication token
+        @type token: String
+        """
         f = open(self.TOKEN_FILE, 'w')
         f.write("|".join([token.key, token.secret]))
         f.close()
 
     def delete_creds(self):
+        """Delete local token file"""
         os.unlink(self.TOKEN_FILE)
 
     def link(self):
+        """Link app to dropbox account"""
         request_token = self.obtain_request_token()
         url = self.build_authorize_url(request_token)
         print "url:", url
@@ -85,5 +143,6 @@ class StoredSession(session.DropboxSession):
         self.write_creds(self.token)
 
     def unlink(self):
+        """Unlink app from dropbox account"""
         self.delete_creds()
         session.DropboxSession.unlink(self)
