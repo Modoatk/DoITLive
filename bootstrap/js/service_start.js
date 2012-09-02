@@ -26,4 +26,3 @@ var stopService = function()
 
 $("#start_button").click(startService);
 $("#stop_button").click(stopService);
-$("#stop_button").hide();

@@ -1,8 +1,11 @@
 import time
 import BaseHTTPServer
 
+import errorbox
+
 
 HOST_NAME = 'localhost'
+
 PORT_NUMBER = 80
 
 
@@ -26,16 +29,20 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             f = open('../bootstrap/index.html')
             x = f.read()
             s.wfile.write(x)
+        elif path == '/error':
+            s.wfile.write('<br>'.join(errorbox.get_errors()))
         else:
             f = open('../bootstrap' + path) # TODO: Security hole (path exploit) also path
             x = f.read()
             s.wfile.write(x)
+
 
     def do_POST(s):
         print s.path
         s.send_response(200)
         s.end_headers()
         s.wfile.write("")
+
 
 
 if __name__ == '__main__':

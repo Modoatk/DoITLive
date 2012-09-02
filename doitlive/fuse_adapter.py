@@ -7,6 +7,17 @@ from fuse import Operations, LoggingMixIn, FuseOSError
 import dropbox_adapter
 import dto
 
+def report_error(f):
+    """Decorator to report errors to errorbox."""
+
+    def decorated_func(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except dropbox_adapter.DropboxException as e:
+            errorbox.ErrorBox.get_instance().add_error(str(e))
+
+    return decorated_func
+
 def catch_not_found(f):
     """Decorator to deal with dropbox_adapter.FileNotFoundException."""
 
@@ -30,6 +41,7 @@ class FuseAdapter(Operations, LoggingMixIn):
         # TODO(apottinger): Cache
         self.__dropbox_adapter = dropbox_adapter
 
+    @report_error
     def create(self, path, unused_mode):
         """FUSE hook for creating a new empty file.
 
@@ -42,6 +54,7 @@ class FuseAdapter(Operations, LoggingMixIn):
         return 0 # TODO(apottinger): Proper error reporting from dropbox adapter
 
     @catch_not_found
+    @report_error
     def getattr(self, path, unused_fh=None):
         """Get the metadata for a file.
 
@@ -68,6 +81,7 @@ class FuseAdapter(Operations, LoggingMixIn):
         return attrs
 
     @catch_not_found
+    @report_error
     def mkdir(self, path, unused_mode):
         """Make a new directory.
 
@@ -80,6 +94,7 @@ class FuseAdapter(Operations, LoggingMixIn):
         return 0 # TODO(apottinger): Proper error reporting from dropbox adapter
 
     @catch_not_found
+    @report_error
     def read(self, path, size, offset, unused_fh):
         """Read the contents of a file.
 
@@ -96,6 +111,7 @@ class FuseAdapter(Operations, LoggingMixIn):
         return contents[offset:size]
 
     @catch_not_found
+    @report_error
     def readdir(self, path, unused_fh):
         """Get the contents of a directory.
 
@@ -108,6 +124,7 @@ class FuseAdapter(Operations, LoggingMixIn):
         return ['.', '..'] + names
 
     @catch_not_found
+    @report_error
     def rename(self, old, new):
         """Rename a file.
 
@@ -125,6 +142,7 @@ class FuseAdapter(Operations, LoggingMixIn):
         return 0
 
     @catch_not_found
+    @report_error
     def rmdir(self, path):
         """Remove a directory.
 
