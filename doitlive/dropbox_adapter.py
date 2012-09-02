@@ -1,4 +1,6 @@
 import os
+from StringIO import StringIO
+
 import locale
 from dropbox import client, rest, session
 
@@ -117,7 +119,8 @@ class DropboxAdapter:
         @param overwrite: Whether to overwrite an existing file
         @type overwrite: Boolean
         """
-        self.api_client.put_file(path, data, overwrite)
+        print path
+        self.api_client.put_file(path, StringIO(data), overwrite)
         
 class StoredSession(session.DropboxSession):
     """a wrapper around DropboxSession that stores a token to a file on disk"""
