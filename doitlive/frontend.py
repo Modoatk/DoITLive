@@ -19,11 +19,20 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_GET(s):
         """Respond to a GET request."""
         s.send_response(200)
-        s.send_header("Content-type", "text/html")
         s.end_headers()
-        f = open('../bootstrap/index.html')
-        x = f.read()
-        s.wfile.write(x)
+        path = s.path
+
+        if path == '/':
+            f = open('../bootstrap/index.html')
+            x = f.read()
+            s.wfile.write(x)
+        else:
+            f = open('../bootstrap' + path) # TODO: Security hole (path exploit) also path
+            x = f.read()
+            s.wfile.write(x)
+
+    def do_POST(s):
+        print s.path
 
 
 if __name__ == '__main__':
