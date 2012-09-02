@@ -2,6 +2,8 @@
 
 #App Specific
 token_store.txt
+doitlive/dropbox/*
+test_adapter.py
 
 # Packages
 *.egg
