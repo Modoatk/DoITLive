@@ -45,7 +45,8 @@ class DropboxAdapter:
 
     @catch_404
     def list_directory_contents(self, path):
-        """
+        """Get all of the items in a directory.
+
         @param path: The relative path of directory to get contents of
         @type path: String
         @return: Contents of directory
@@ -63,15 +64,17 @@ class DropboxAdapter:
 
     @catch_404
     def make_directory(self, path):
-        """
-        @param path: The relative path of directory to be file_create_folder
+        """Create a new directory in a user's Dropbox.
+
+        @param path: The relative path of directory to be created
         @type path: String
         """
         self.api_client.file_create_folder(path)
 
     @catch_404
     def remove(self, path):
-        """
+        """Remove a file / directory from a user's Dropbox.
+
         @param path: The relative path of item to be removed
         @type path: String
         """
@@ -79,7 +82,8 @@ class DropboxAdapter:
 
     @catch_404
     def move(self, start, end):
-        """
+        """Move a file / directory in a user's Dropbox.
+
         @param start: The relative path of item's current location
         @type start: String
         @param end: The relative path to move item to
@@ -89,10 +93,11 @@ class DropboxAdapter:
 
     @catch_404
     def get_metadata(self, path):
-        """
-        @param path: The relative path of file to retrieve metadata from
+        """Get the metadata for a file or folder.
+
+        @param path: The relative path of item to retrieve metadata from.
         @type path: String
-        @return: The metadata of provided file
+        @return: The metadata of provided item.
         @rtype: Dict
         """
         x = self.api_client.metadata(path)
@@ -100,7 +105,8 @@ class DropboxAdapter:
     
     @catch_404
     def read_file(self, path):
-        """
+        """Get the contents of a file or folder.
+
         @param path: The relative path of file to retrieve contents of
         @type path: String
         @return: The contents of provided file
@@ -111,7 +117,8 @@ class DropboxAdapter:
 
     @catch_404
     def save_file(self, path, data, overwrite=True):
-        """
+        """Write to a file.
+
         @param path: The relative path of file to be saved
         @type path: String
         @param data: The contents of file being saved
