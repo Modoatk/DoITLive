@@ -25,3 +25,10 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+
+#MacOSX
+.DS_Store?
+ehthumbs.db
+Icon?
+Thumbs.db
+*.DS_Store
