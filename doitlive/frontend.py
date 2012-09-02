@@ -33,6 +33,9 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def do_POST(s):
         print s.path
+        s.send_response(200)
+        s.end_headers()
+        s.wfile.write("")
 
 
 if __name__ == '__main__':
