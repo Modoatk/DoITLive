@@ -1,7 +1,7 @@
 import os
 from dropbox import client, rest, session
 
-Class DropboxAdapter:
+class DropboxAdapter:
     """Define file operation functions"""
     def __init__(self, app_key, app_secret, access_type = 'app_folder'):
         #comment
@@ -9,9 +9,19 @@ Class DropboxAdapter:
         self.api_client = client.DropboxClient(self.sess)
         #Set Access type (either 'dropbox' or 'app_folder')
 
+    def login(self):
+        """log in to a Dropbox account"""
+        try:
+            self.sess.link()
+        except rest.ErrorResponse, e:
+            self.stdout.write('Error: %s\n' % str(e))
 
-    def list_directory_contents(self, path)
-        resp = self.api_client.metadata(self.current_path)
+    def logout(self):
+        """log out of the current Dropbox account"""
+        self.sess.unlink()
+
+    def list_directory_contents(self, path):
+        resp = self.api_client.metadata(path)
     
         if 'contents' in resp:
             for f in resp['contents']:
