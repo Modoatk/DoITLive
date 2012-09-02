@@ -119,7 +119,6 @@ class DropboxAdapter:
         @param overwrite: Whether to overwrite an existing file
         @type overwrite: Boolean
         """
-        print path
         self.api_client.put_file(path, StringIO(data), overwrite)
         
 class StoredSession(session.DropboxSession):

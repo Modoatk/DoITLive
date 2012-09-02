@@ -25,4 +25,5 @@ if __name__ == "__main__":
             dropbox_adapter,
             full_path
     )
+    decorated_dropbox_adapter = decorators.DropboxAdapterCachingDecorator(decorated_dropbox_adapter)
     fuse.FUSE(fuse_adapter.FuseAdapter(decorated_dropbox_adapter), sys.argv[1], foreground=True)

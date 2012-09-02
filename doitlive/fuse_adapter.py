@@ -31,7 +31,6 @@ class FuseAdapter(Operations, LoggingMixIn):
         self.__dropbox_adapter = dropbox_adapter
 
     def create(self, path, unused_mode):
-        print "create"
         """FUSE hook for creating a new empty file.
 
         @param path: The absolute path of the file to create.
@@ -44,7 +43,6 @@ class FuseAdapter(Operations, LoggingMixIn):
 
     @catch_not_found
     def getattr(self, path, unused_fh=None):
-        print "getattr"
         """Get the metadata for a file.
 
         @param path: The absolute path of the file to get metadata for.
@@ -71,7 +69,6 @@ class FuseAdapter(Operations, LoggingMixIn):
 
     @catch_not_found
     def mkdir(self, path, unused_mode):
-        print "mkdir"
         """Make a new directory.
 
         @param path: The absolute path of the directory to create.
@@ -84,7 +81,6 @@ class FuseAdapter(Operations, LoggingMixIn):
 
     @catch_not_found
     def read(self, path, size, offset, unused_fh):
-        print "read"
         """Read the contents of a file.
 
         @param path: The absolute path of the file to read.
@@ -108,7 +104,6 @@ class FuseAdapter(Operations, LoggingMixIn):
         @return: List of items in the given directory.
         @rtype: Iterable over string.
         """
-        print "readdir"
         names = self.__dropbox_adapter.list_directory_contents(path)
         return ['.', '..'] + names
 
@@ -123,7 +118,6 @@ class FuseAdapter(Operations, LoggingMixIn):
         @return: System status code.
         @rtype: int
         """
-        print "rename"
         # TODO(apottinger): Check to make sure new is in app dir
         # TODO(apottinger): Handle moving outside of dropbox
         # TODO(apottinger): Check for errors
@@ -139,7 +133,6 @@ class FuseAdapter(Operations, LoggingMixIn):
         @return: System status code.
         @rtype: int
         """
-        print "rmdir"
         self.__dropbox_adapter.remove(path)
         return 0 # TODO(apottinger): Proper error reporting from dropbox adapter
 
@@ -154,7 +147,6 @@ class FuseAdapter(Operations, LoggingMixIn):
         @return: System status code.
         @rtype: int
         """
-        print "truncate"
         new_contents = self.read(path, length, 0, None)
         self.write(path, new_contents, 0, None)
         return 0 # TODO(apottinger): Proper error reporting from dropbox adapter
@@ -168,7 +160,6 @@ class FuseAdapter(Operations, LoggingMixIn):
         @return: System status code.
         @rtype: int
         """
-        print "unlink"
         self.__dropbox_adapter.remove(path)
         return 0 # TODO(apottinger): Proper error reporting from dropbox adapter
 
@@ -181,7 +172,6 @@ class FuseAdapter(Operations, LoggingMixIn):
         @return: Number of bytes written.
         @rtype: Int
         """
-        print "write"
         if offset > 0:
             orig = self.__dropbox_adapter.read_file(path)[:offset]
         else:
