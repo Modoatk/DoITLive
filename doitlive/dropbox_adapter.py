@@ -1,4 +1,5 @@
 import os
+import locale
 from dropbox import client, rest, session
 
 class DropboxAdapter:
@@ -12,7 +13,8 @@ class DropboxAdapter:
     def login(self):
         """log in to a Dropbox account"""
         try:
-            self.sess.link()
+            if not self.sess.load_creds():
+                self.sess.link()
         except rest.ErrorResponse, e:
             self.stdout.write('Error: %s\n' % str(e))
 
@@ -22,12 +24,13 @@ class DropboxAdapter:
 
     def list_directory_contents(self, path):
         resp = self.api_client.metadata(path)
+        x = []
     
         if 'contents' in resp:
             for f in resp['contents']:
                 name = os.path.basename(f['path'])
                 encoding = locale.getdefaultlocale()[1]
-                x += name.encode(encoding)
+                x.append(name.encode(encoding))
         return x
 
     def make_directory(self, path):
@@ -59,8 +62,9 @@ class StoredSession(session.DropboxSession):
             stored_creds = open(self.TOKEN_FILE).read()
             self.set_token(*stored_creds.split('|'))
             print "[loaded access token]"
+            return True
         except IOError:
-            pass # don't worry if it's not there
+            return False
 
     def write_creds(self, token):
         f = open(self.TOKEN_FILE, 'w')
