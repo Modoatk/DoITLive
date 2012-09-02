@@ -2,6 +2,19 @@ import os
 import locale
 from dropbox import client, rest, session
 
+def catch_404(f):
+    """Decorator to deal with file not found on dropbox"""
+
+    def decorated_func(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except rest.ErrorResponse as e:
+            if e.status == 404:
+                raise FileNotFoundException(str(e))
+            else: raise DropboxException(str(e))
+
+    return decorated_func
+
 class DropboxException(Exception):
     pass
 
@@ -28,6 +41,7 @@ class DropboxAdapter:
         """log out of the current Dropbox account"""
         self.sess.unlink()
 
+    @catch_404
     def list_directory_contents(self, path):
         """
         @param path: The relative path of directory to get contents of
@@ -45,6 +59,7 @@ class DropboxAdapter:
                 x.append(name.encode(encoding))
         return x
 
+    @catch_404
     def make_directory(self, path):
         """
         @param path: The relative path of directory to be file_create_folder
@@ -52,6 +67,7 @@ class DropboxAdapter:
         """
         self.api_client.file_create_folder(path)
 
+    @catch_404
     def remove(self, path):
         """
         @param path: The relative path of item to be removed
@@ -59,6 +75,7 @@ class DropboxAdapter:
         """
         self.api_client.file_delete(path)
 
+    @catch_404
     def move(self, start, end):
         """
         @param start: The relative path of item's current location
@@ -68,6 +85,7 @@ class DropboxAdapter:
         """
         self.api_client.file_move(start,end)
 
+    @catch_404
     def get_metadata(self, path):
         """
         @param path: The relative path of file to retrieve metadata from
@@ -78,6 +96,7 @@ class DropboxAdapter:
         x = self.api_client.metadata(path)
         return x
     
+    @catch_404
     def read_file(self, path):
         """
         @param path: The relative path of file to retrieve contents of
@@ -85,15 +104,10 @@ class DropboxAdapter:
         @return: The contents of provided file
         @rtype: String
         """
-        try:
-            x = self.api_client.get_file(path).read()
-            return x
-        except rest.ErrorResponse as e:
-            if e.status == 404:
-                raise FileNotFoundException(str(e))
-            else
-                raise DropboxException(str(e))
+        x = self.api_client.get_file(path).read()
+        return x
 
+    @catch_404
     def save_file(self, path, data, overwrite=True):
         """
         @param path: The relative path of file to be saved
@@ -110,6 +124,7 @@ class StoredSession(session.DropboxSession):
     TOKEN_FILE = "token_store.txt"
 
     def load_creds(self):
+        """Load tokens from local file"""
         try:
             stored_creds = open(self.TOKEN_FILE).read()
             self.set_token(*stored_creds.split('|'))
