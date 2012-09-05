@@ -2,11 +2,12 @@ import time
 import BaseHTTPServer
 
 import errorbox
+import main
 
 
 HOST_NAME = 'localhost'
 
-PORT_NUMBER = 80
+PORT_NUMBER = 8080
 
 
 class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
@@ -38,12 +39,11 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 
     def do_POST(s):
-        print s.path
-        s.send_response(200)
-        s.end_headers()
-        s.wfile.write("")
-
-
+        if s.path == "/start":
+            main.start_service("../flybox")
+            s.send_response(200)
+            s.end_headers()
+            s.wfile.write("")
 
 if __name__ == '__main__':
     server_class = BaseHTTPServer.HTTPServer
