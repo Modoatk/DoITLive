@@ -12,24 +12,25 @@ APP_KEY = "h9j5r8xzwq8twxn"
 APP_SECRET = "af33a3wtka2t8tc"     
 
 
-def start_service(full_path):
+def start_service(relative_path):
     """Start the FUSE file system that mirrors a user's Dropbox.
 
     @param full_path: Path to where the FUSE file system should be mounted.
     @type full_path: String
     """
-    dropbox_adapter = dropbox_adapter.DropboxAdapter(APP_KEY, APP_SECRET)
-    dropbox_adapter.login()
+    full_path = os.path.abspath(relative_path)
+    dropbox = dropbox_adapter.DropboxAdapter(APP_KEY, APP_SECRET)
+    dropbox.login()
 
-    decorated_dropbox_adapter = decorators.DropboxAdapterPathDecorator(
-            dropbox_adapter,
+    decorated_dropbox = decorators.DropboxAdapterPathDecorator(
+            dropbox,
             full_path
     )
-    decorated_dropbox_adapter = decorators.DropboxAdapterCachingDecorator(
-        decorated_dropbox_adapter)
+    decorated_dropbox = decorators.DropboxAdapterCachingDecorator(
+        decorated_dropbox)
 
     fuse.FUSE(fuse_adapter.FuseAdapter(
-        decorated_dropbox_adapter),
+        decorated_dropbox),
         full_path,
         foreground=True
     )
