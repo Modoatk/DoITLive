@@ -139,7 +139,7 @@ class StoredSession(session.DropboxSession):
             self.set_token(*stored_creds.split('|'))
             print "[loaded access token]"
             return True
-        except IOError:
+        except IOError, TypeError:
             return False
 
     def write_creds(self, token):
